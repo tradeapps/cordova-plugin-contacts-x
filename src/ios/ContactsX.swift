@@ -70,7 +70,7 @@ import PhoneNumberKit
         if(options.emails) {
             keysToFetch.append(CNContactEmailAddressesKey);
         }
-        if(options.image) {
+        if(options.imageData) {
             keysToFetch.append(CNContactImageDataKey)
         }
         return keysToFetch;

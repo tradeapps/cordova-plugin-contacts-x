@@ -6,7 +6,7 @@ class ContactsXOptions {
     var organizationName: Bool = true;
     var phoneNumbers: Bool = false;
     var emails: Bool = false;
-    var image: Bool = false;
+    var imageData: Bool = false;
     var baseCountryCode : String?? = nil;
 
     init(options: NSDictionary?) {
@@ -32,7 +32,7 @@ class ContactsXOptions {
         organizationName = fields.value(forKey: "organizationName") as? Bool ?? true;
         phoneNumbers = fields.value(forKey: "phoneNumbers") as? Bool ?? false;
         emails = fields.value(forKey: "emails") as? Bool ?? false;
-        image = fields.value(forKey: "image") as? Bool ?? false;
+        imageData = fields.value(forKey: "imageData") as? Bool ?? false;
     }
 
 }
@@ -45,7 +45,7 @@ class ContactXOptions {
     var organizationName: String? = nil;
     var phoneNumbers: [ContactXValueTypeOptions]? = nil;
     var emails: [ContactXValueTypeOptions]? = nil;
-    var image: String? = nil;
+    var imageData: String? = nil;
     
     init(options: NSDictionary?) {
         if(options != nil) {
@@ -62,7 +62,7 @@ class ContactXOptions {
             if(emailsArray != nil) {
                 emails = self.parseEmails(array: emailsArray!);
             }
-            image = options?.value(forKey: "image") as? String;
+            imageData = options?.value(forKey: "imageData") as? String;
         }
     }
     
