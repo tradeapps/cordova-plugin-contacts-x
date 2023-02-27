@@ -64,7 +64,9 @@ class ContactX {
             result["organizationName"] = self.contact.organizationName;
         }
         if(options.imageData) {
-            result["imageData"] = self.contact.imageData;
+            if let imageData = self.contact.imageData {
+                result["imageData"] = imageData.base64EncodedString();
+            }
         }
 
         return result as NSDictionary;
