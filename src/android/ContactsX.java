@@ -195,6 +195,9 @@ public class ContactsX extends CordovaPlugin {
         if (options.organizationName) {
             projection.add(ContactsContract.CommonDataKinds.Organization.COMPANY);
         }
+        if (options.image) {
+            projection.add(ContactsContract.CommonDataKinds.Photo.PHOTO);
+        }
 
         return projection;
     }
@@ -292,6 +295,12 @@ public class ContactsX extends CordovaPlugin {
                         } catch (IllegalArgumentException ignored) {
                         }
                         break;
+                    default: {
+                        if (options.image) {
+                            String image = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
+                            jsContact.put("image", mimeType);
+                        }
+                    }
                 }
 
                 contactsById.put(contactId, jsContact);

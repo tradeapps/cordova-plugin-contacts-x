@@ -61,14 +61,17 @@ import PhoneNumberKit
         if(options.familyName) {
             keysToFetch.append(CNContactFamilyNameKey);
         }
+        if(options.organizationName){
+            keysToFetch.append(CNContactOrganizationNameKey)
+        }
         if(options.phoneNumbers) {
             keysToFetch.append(CNContactPhoneNumbersKey);
         }
         if(options.emails) {
             keysToFetch.append(CNContactEmailAddressesKey);
         }
-        if(options.organizationName){
-            keysToFetch.append(CNContactOrganizationNameKey)
+        if(options.image) {
+            keysToFetch.append(CNContactImageDataKey)
         }
         return keysToFetch;
     }

@@ -63,6 +63,9 @@ class ContactX {
         if(options.organizationName) {
             result["organizationName"] = self.contact.organizationName;
         }
+        if(options.image) {
+            result["image"] = self.contact.image;
+        }
 
         return result as NSDictionary;
     }
