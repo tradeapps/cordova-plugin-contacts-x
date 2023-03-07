@@ -195,7 +195,7 @@ public class ContactsX extends CordovaPlugin {
         if (options.organizationName) {
             projection.add(ContactsContract.CommonDataKinds.Organization.COMPANY);
         }
-        if (options.image) {
+        if (options.imageData) {
             projection.add(ContactsContract.CommonDataKinds.Photo.PHOTO);
         }
 
@@ -217,7 +217,7 @@ public class ContactsX extends CordovaPlugin {
             selectionArgs.add(ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE);
         }
 
-        if (options.image) {
+        if (options.Data) {
             selectionArgs.add(ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
         }
 
@@ -300,9 +300,9 @@ public class ContactsX extends CordovaPlugin {
                         }
                         break;
                     default: {
-                        if (options.image) {
+                        if (options.imageData) {
                             String image = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
-                            jsContact.put("image", mimeType);
+                            jsContact.put("image", image);
                         }
                     }
                 }
