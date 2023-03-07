@@ -217,6 +217,10 @@ public class ContactsX extends CordovaPlugin {
             selectionArgs.add(ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE);
         }
 
+        if (options.image) {
+            selectionArgs.add(ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
+        }
+
         return selectionArgs;
     }
 

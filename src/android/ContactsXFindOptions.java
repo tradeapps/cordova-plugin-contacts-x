@@ -12,7 +12,7 @@ public class ContactsXFindOptions {
     boolean phoneNumbers;
     boolean emails;
     String baseCountryCode = null;
-    boolean image;
+    boolean imageData;
 
     public ContactsXFindOptions(JSONObject options) {
         if (options != null) {
@@ -38,6 +38,6 @@ public class ContactsXFindOptions {
         this.organizationName = fields.optBoolean("organizationName", true);
         this.phoneNumbers = fields.optBoolean("phoneNumbers");
         this.emails = fields.optBoolean("emails");
-        this.image = fields.optBoolean("image", true);
+        this.imageData = fields.optBoolean("imageData", true);
     }
 }
