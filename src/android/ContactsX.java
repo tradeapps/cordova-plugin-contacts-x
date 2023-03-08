@@ -303,8 +303,8 @@ public class ContactsX extends CordovaPlugin {
                         break;
                     default: {
                         if (options.imageData) {
-                            String image = Base64.encodeToString(contactsCursor.getBlob(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO)), Base64.DEFAULT);
-                            jsContact.put("image", image);
+                            String imageData = Base64.encodeToString(contactsCursor.getBlob(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO)), Base64.DEFAULT);
+                            jsContact.put("imageData", imageData);
                         }
                     }
                 }
