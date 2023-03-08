@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import android.util.Base64;
+
 /**
  * This class echoes a string called from JavaScript.
  */
