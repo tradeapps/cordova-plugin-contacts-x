@@ -301,7 +301,7 @@ public class ContactsX extends CordovaPlugin {
                         break;
                     default: {
                         if (options.imageData) {
-                            String image = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
+                            String image = contactsCursor.getBlob(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
                             jsContact.put("image", image);
                         }
                     }
