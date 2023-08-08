@@ -32,6 +32,32 @@ class ContactX {
         }
         return labeledValues;
     }
+    
+    func getAddresses() -> [NSDictionary] {
+        let labeledValues: [NSDictionary] = self.contact.postalAddresses.map { (ob: CNLabeledValue<CNPostalAddress>) -> NSDictionary in
+            let address = ob.value
+            
+            var addressDictionary: [String: Any] = [
+                "street": address.street,
+                "city": address.city,
+                "state": address.state,
+                "postalCode": address.postalCode,
+                "country": address.country
+            ]
+            
+            if #available(iOS 11.0, *) {
+                addressDictionary["subLocality"] = address.subLocality
+                addressDictionary["subAdministrativeArea"] = address.subAdministrativeArea
+            }
+            
+            return [
+                "id": ob.identifier,
+                "type": ContactsX.mapLabelToString(label: ob.label ?? ""),
+                "value": addressDictionary
+            ]
+        }
+        return labeledValues
+    }
 
     func getJson() -> NSDictionary {
 
@@ -44,6 +70,12 @@ class ContactX {
         if(options.emails) {
             emails = self.getEmailAddresses();
         }
+        
+        var addresses: [NSDictionary] = []
+        if options.addresses {
+            addresses = self.getAddresses()
+        }
+
 
         var result: [String : Any] = [
             "id": self.contact.identifier,
@@ -63,12 +95,9 @@ class ContactX {
         if(options.organizationName) {
             result["organizationName"] = self.contact.organizationName;
         }
-        if(options.imageData) {
-            if let imageData = self.contact.imageData {
-                result["imageData"] = imageData.base64EncodedString();
-            }
-        }
-
+        
+        result["addresses"] = addresses
+        
         return result as NSDictionary;
     }
     

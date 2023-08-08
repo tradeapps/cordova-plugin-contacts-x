@@ -61,18 +61,20 @@ import PhoneNumberKit
         if(options.familyName) {
             keysToFetch.append(CNContactFamilyNameKey);
         }
-        if(options.organizationName){
-            keysToFetch.append(CNContactOrganizationNameKey)
-        }
         if(options.phoneNumbers) {
             keysToFetch.append(CNContactPhoneNumbersKey);
         }
         if(options.emails) {
             keysToFetch.append(CNContactEmailAddressesKey);
         }
-        if(options.imageData) {
-            keysToFetch.append(CNContactImageDataKey)
+        if(options.organizationName){
+            keysToFetch.append(CNContactOrganizationNameKey)
         }
+        
+        if(options.addresses) {
+            keysToFetch.append(CNContactPostalAddressesKey)
+        }
+        
         return keysToFetch;
     }
 
@@ -217,7 +219,7 @@ import PhoneNumberKit
                 var newMails: [CNLabeledValue<NSString>] = [];
                 outer: for newMail in contact.emails! {
                     for mail in editContact.emailAddresses {
-                        if(mail.identifier == newMail.id!) {
+                        if(newMail.id != nil && mail.identifier == newMail.id!) {
                             newMails.append(mail.settingLabel(ContactsX.mapStringToLabel(string: newMail.type), value: newMail.value as NSString));
                             continue outer;
                         }
@@ -398,11 +400,11 @@ import PhoneNumberKit
         }
         return ContactsX._PhoneNumberKitInstance!;
     }
-}
 
-enum ErrorCodes:NSNumber {
-    case UnsupportedAction = 1
-    case WrongJsonObject = 2
-    case PermissionDenied = 3
-    case UnknownError = 10
+    enum ErrorCodes:NSNumber {
+        case UnsupportedAction = 1
+        case WrongJsonObject = 2
+        case PermissionDenied = 3
+        case UnknownError = 10
+    }
 }

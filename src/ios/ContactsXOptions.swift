@@ -6,9 +6,8 @@ class ContactsXOptions {
     var organizationName: Bool = true;
     var phoneNumbers: Bool = false;
     var emails: Bool = false;
-    var imageData: Bool = false;
     var baseCountryCode : String?? = nil;
-
+    var addresses: Bool = true
     init(options: NSDictionary?) {
         if(options != nil) {
 
@@ -29,10 +28,10 @@ class ContactsXOptions {
         firstName = fields.value(forKey: "firstName") as? Bool ?? true;
         middleName = fields.value(forKey: "middleName") as? Bool ?? true;
         familyName = fields.value(forKey: "familyName") as? Bool ?? true;
+        addresses = fields.value(forKey: "addresses") as? Bool ?? true;
         organizationName = fields.value(forKey: "organizationName") as? Bool ?? true;
         phoneNumbers = fields.value(forKey: "phoneNumbers") as? Bool ?? false;
         emails = fields.value(forKey: "emails") as? Bool ?? false;
-        imageData = fields.value(forKey: "imageData") as? Bool ?? false;
     }
 
 }
@@ -45,8 +44,8 @@ class ContactXOptions {
     var organizationName: String? = nil;
     var phoneNumbers: [ContactXValueTypeOptions]? = nil;
     var emails: [ContactXValueTypeOptions]? = nil;
-    var imageData: String? = nil;
-    
+    var addresses: String? = nil;
+
     init(options: NSDictionary?) {
         if(options != nil) {
             id = options?.value(forKey: "id") as? String;
@@ -54,6 +53,7 @@ class ContactXOptions {
             middleName = options?.value(forKey: "middleName") as? String;
             familyName = options?.value(forKey: "familyName") as? String;
             organizationName = options?.value(forKey: "organizationName") as? String;
+            addresses = options?.value(forKey: "addresses") as? String;
             let phonenumberArray = options?.value(forKey: "phoneNumbers") as? [NSDictionary];
             if(phonenumberArray != nil) {
                 phoneNumbers = self.parsePhoneNumbers(array: phonenumberArray!);
@@ -62,7 +62,6 @@ class ContactXOptions {
             if(emailsArray != nil) {
                 emails = self.parseEmails(array: emailsArray!);
             }
-            imageData = options?.value(forKey: "imageData") as? String;
         }
     }
     
