@@ -3,6 +3,7 @@ package de.einfachhans.ContactsX;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -14,10 +15,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
-
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -51,7 +48,6 @@ public class ContactsX extends CordovaPlugin {
     public static final int REQ_CODE_PERMISSIONS = 0;
     public static final int REQ_CODE_PICK = 2;
 
-    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
@@ -109,7 +105,7 @@ public class ContactsX extends CordovaPlugin {
                     returnError(ContactsXErrorCodes.UnknownError, "Error occurred while retrieving contact raw id");
                     return;
                 }
-                String id = c.getString(c.getColumnIndex(ContactsContract.RawContacts._ID));
+                @SuppressLint("Range") String id = c.getString(c.getColumnIndex(ContactsContract.RawContacts._ID));
                 c.close();
 
                 JSONObject contact = getContactById(id);
@@ -201,6 +197,10 @@ public class ContactsX extends CordovaPlugin {
             projection.add(ContactsContract.CommonDataKinds.Photo.PHOTO);
         }
 
+        if(options.addresses) {
+            projection.add(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS);
+        }
+
         return projection;
     }
 
@@ -223,6 +223,10 @@ public class ContactsX extends CordovaPlugin {
             selectionArgs.add(ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
         }
 
+        if (options.addresses) {
+            selectionArgs.add(ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE);
+        }
+
         return selectionArgs;
     }
 
@@ -234,10 +238,10 @@ public class ContactsX extends CordovaPlugin {
             HashMap<Object, JSONObject> contactsById = new HashMap<>();
 
             while (contactsCursor.moveToNext()) {
-                String contactId = contactsCursor.getString(
+                @SuppressLint("Range") String contactId = contactsCursor.getString(
                         contactsCursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
                 );
-                String rawId = contactsCursor.getString(
+                @SuppressLint("Range") String rawId = contactsCursor.getString(
                         contactsCursor.getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID)
                 );
 
@@ -250,7 +254,7 @@ public class ContactsX extends CordovaPlugin {
                     jsContact.put("id", contactId);
                     jsContact.put("rawId", rawId);
                     if (options.displayName) {
-                        String displayName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        @SuppressLint("Range") String displayName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                         jsContact.put("displayName", displayName);
                     }
                     JSONArray jsPhoneNumbers = new JSONArray();
@@ -264,7 +268,7 @@ public class ContactsX extends CordovaPlugin {
                     jsContact = contactsById.get(contactId);
                 }
 
-                String mimeType = contactsCursor.getString(
+                @SuppressLint("Range") String mimeType = contactsCursor.getString(
                         contactsCursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
                 );
 
@@ -283,7 +287,7 @@ public class ContactsX extends CordovaPlugin {
                             String organizationName = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Organization.COMPANY));
                             jsContact.put("organizationName", organizationName);
                         }
-                        break;    
+                        break;
                     case ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE:
                         try {
                             if (options.firstName) {
@@ -301,12 +305,13 @@ public class ContactsX extends CordovaPlugin {
                         } catch (IllegalArgumentException ignored) {
                         }
                         break;
-                    default: {
-                        if (options.imageData) {
-                            String imageData = Base64.encodeToString(contactsCursor.getBlob(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO)), Base64.DEFAULT);
-                            jsContact.put("imageData", imageData);
+
+                    case ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE:
+                        if(options.addresses) {
+                            String address = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
+                            jsContact.put("address", address);
                         }
-                    }
+
                 }
 
                 contactsById.put(contactId, jsContact);
@@ -325,9 +330,7 @@ public class ContactsX extends CordovaPlugin {
         String type = (typeCode == ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM) ? typeLabel : getPhoneType(typeCode);
         phoneNumber.put("id", cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone._ID)));
         phoneNumber.put("value", cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-        phoneNumber.put("normalized", getNormalizedPhoneNumber(
-                                                cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)),
-                                                options));
+        phoneNumber.put("normalized", cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
         phoneNumber.put("type", type);
         return phoneNumber;
     }
@@ -348,19 +351,6 @@ public class ContactsX extends CordovaPlugin {
             Intent contactPickerIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
             this.cordova.startActivityForResult(this, contactPickerIntent, REQ_CODE_PICK);
         });
-    }
-
-    private String getNormalizedPhoneNumber(String phoneNumber, ContactsXFindOptions options){
-
-        if(options.baseCountryCode != null && phoneNumber != null){
-            try {
-                Phonenumber.PhoneNumber phoneNumberProto = phoneUtil.parse(phoneNumber, options.baseCountryCode);
-                return phoneUtil.format(phoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164);
-            } catch (NumberParseException e) {
-                return "";
-            }
-        }
-        return "";
     }
 
     private JSONObject getContactById(String id) {
@@ -479,7 +469,7 @@ public class ContactsX extends CordovaPlugin {
         } else {
             LOG.d(LOG_TAG, "All \"name\" properties are empty");
         }
-        
+
         // Add organizationName
         String organizationName = getJsonString(contact, "organizationName");
         if(organizationName != null){
@@ -735,7 +725,7 @@ public class ContactsX extends CordovaPlugin {
 
         if (cursor.getCount() == 1) {
             cursor.moveToFirst();
-            String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+            @SuppressLint("Range") String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
             Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
             result = this.cordova.getActivity().getContentResolver().delete(uri, null, null);
         } else {
