@@ -4,7 +4,7 @@ class ContactX {
 
     var contact: CNContact;
     var options: ContactsXOptions;
-    
+
     init(contact: CNContact, options: ContactsXOptions) {
         self.contact = contact;
         self.options = options;
@@ -32,32 +32,19 @@ class ContactX {
         }
         return labeledValues;
     }
-    
-    func getAddresses() -> [NSDictionary] {
-        let labeledValues: [NSDictionary] = self.contact.postalAddresses.map { (ob: CNLabeledValue<CNPostalAddress>) -> NSDictionary in
+
+    func getAddresses() -> String {
+        let labeledValues: [String] = self.contact.postalAddresses.map { (ob: CNLabeledValue<CNPostalAddress>) -> String in
             let address = ob.value
-            
-            var addressDictionary: [String: Any] = [
-                "street": address.street,
-                "city": address.city,
-                "state": address.state,
-                "postalCode": address.postalCode,
-                "country": address.country
-            ]
-            
-            if #available(iOS 11.0, *) {
-                addressDictionary["subLocality"] = address.subLocality
-                addressDictionary["subAdministrativeArea"] = address.subAdministrativeArea
-            }
-            
-            return [
-                "id": ob.identifier,
-                "type": ContactsX.mapLabelToString(label: ob.label ?? ""),
-                "value": addressDictionary
-            ]
+            let addressString = "\(address.street), \(address.city), \(address.state), \(address.postalCode), \(address.country)"
+
+            return addressString
         }
-        return labeledValues
+
+        let concatenatedAddresses = labeledValues.joined(separator: "; ")
+        return concatenatedAddresses
     }
+
 
     func getJson() -> NSDictionary {
 
@@ -70,11 +57,8 @@ class ContactX {
         if(options.emails) {
             emails = self.getEmailAddresses();
         }
-        
-        var addresses: [NSDictionary] = []
-        if options.addresses {
-            addresses = self.getAddresses()
-        }
+
+
 
 
         var result: [String : Any] = [
@@ -82,6 +66,10 @@ class ContactX {
             "phoneNumbers": phoneNumbers,
             "emails": emails
         ];
+
+        if(options.addresses) {
+            result["addresses"] = self.getAddresses()
+        }
 
         if(options.firstName) {
             result["firstName"] = self.contact.givenName;
@@ -95,17 +83,15 @@ class ContactX {
         if(options.organizationName) {
             result["organizationName"] = self.contact.organizationName;
         }
-        
-        result["addresses"] = addresses
-        
+
         return result as NSDictionary;
     }
-    
+
     private func getNormalizedPhoneNumber(phoneNumberString: String) -> String {
         if(phoneNumberString != "" && self.options.baseCountryCode != nil){
             do {
                 let phoneNumberCustomDefaultRegion = try ContactsX.getPhoneNumberKitInstance().parse(phoneNumberString, withRegion: self.options.baseCountryCode!!, ignoreType: true);
-                
+
                 return ContactsX.getPhoneNumberKitInstance().format(phoneNumberCustomDefaultRegion, toType : .e164);
             }
             catch {
