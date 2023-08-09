@@ -308,8 +308,8 @@ public class ContactsX extends CordovaPlugin {
 
                     case ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE:
                         if(options.addresses) {
-                            String address = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
-                            jsContact.put("address", address);
+                            String addresses = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
+                            jsContact.put("addresses", addresses);
                         }
 
                 }
